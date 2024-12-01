@@ -18,7 +18,7 @@ fi
 KDIR=$(pwd)
 TC="${KDIR}/.tools"
 AK=${TC}/AnyKernel
-KERNEL_NAME="Derp-KSU"
+KERNEL_NAME="Perf"
 KERNEL_TYPE="EAS"
 PHONE="Poco X3 Pro"
 DEVICE="vayu"
@@ -26,8 +26,8 @@ CONFIG=${CONFIG:-vayu_defconfig}
 #CODENAME="-Testing"
 CHAT_ID="${CHAT_ID}"
 TOKEN="${TOKEN}"
-export KBUILD_BUILD_USER=Bagaskara
-export KBUILD_BUILD_HOST=DominatingMachine
+export KBUILD_BUILD_USER=Momenabdulrazek
+export KBUILD_BUILD_HOST=AndroidBuildServer
 AK_BRANCH="vayu"
 
 if [[ ! -d $TC/clang || ! -d $TC/gcc64 || ! -d $TC/gcc32 ]]; then
@@ -39,13 +39,6 @@ fi
 if [[ ! -d ${AK} ]]; then
   git clone https://github.com/bagaskara815/AnyKernel3 --no-tags --single-branch -b $AK_BRANCH ${AK}
 fi
-
-# KernelSU
-git config --global user.email "bagaskara815@gmail.com"
-git config --global user.name "bagaskara815"
-curl https://gist.githubusercontent.com/bagaskara815/5aeb07f0d9031189871ffa362591b20f/raw/ksu.patch >> ksu.patch
-git am ksu.patch
-curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s v0.9.5
 
 # Setup name
 GIT="$(git log --pretty=format:'%h' -1)"
@@ -106,7 +99,7 @@ sendInfo() {
 &>/dev/null
 }
 
-sendInfo "<b>----- Nightly Kernel For Derp -----</b>" \
+sendInfo "<b>----- Perf Kernel -----</b>" \
 	"<b>Device:</b> ${DEVICE} or ${PHONE}" \
 	"<b>Name:</b> <code>${KERNEL_NAME}${KVERSION}</code>" \
 	"<b>Kernel Version:</b> <code>$(make kernelversion)</code>" \
