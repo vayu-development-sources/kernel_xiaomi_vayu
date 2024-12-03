@@ -7,7 +7,7 @@
 # Credit to: Rama Bondan Prakoso (rama982)
 #
 
-export TZ=":Asia/Jakarta"
+export TZ=":Africa/Egypt"
 
 if [[ ! -f Makefile ]]; then
   echo "This not in rootdir kernel, please check directory again"
@@ -24,9 +24,7 @@ PHONE="Poco X3 Pro"
 DEVICE="vayu"
 CONFIG=${CONFIG:-vayu_defconfig}
 #CODENAME="-Testing"
-CHAT_ID="${CHAT_ID}"
-TOKEN="${TOKEN}"
-export KBUILD_BUILD_USER=Momenabdulrazek
+export KBUILD_BUILD_USER=momenabdulrazek
 export KBUILD_BUILD_HOST=AndroidBuildServer
 AK_BRANCH="vayu"
 
@@ -89,33 +87,6 @@ m > >(tee $KDIR/out/${LOG}) 2> >(tee $KDIRout/${LOGE} >&2)
 
 END=$(date +"%s")
 DIFF=$(($END - $START))
-
-sendInfo() {
-    curl -s -X POST https://api.telegram.org/bot$TOKEN/sendMessage -d chat_id=$CHAT_ID -d "parse_mode=HTML" -d text="$(
-            for POST in "${@}"; do
-                echo "${POST}"
-            done
-        )"
-&>/dev/null
-}
-
-sendInfo "<b>----- Perf Kernel -----</b>" \
-	"<b>Device:</b> ${DEVICE} or ${PHONE}" \
-	"<b>Name:</b> <code>${KERNEL_NAME}${KVERSION}</code>" \
-	"<b>Kernel Version:</b> <code>$(make kernelversion)</code>" \
-	"<b>Type:</b> <code>${KERNEL_TYPE}</code>" \
-	"<b>Branch:</b> <code>$(git branch --show-current)</code>" \
-	"<b>Commit:</b> <code>$(git log --pretty=format:'%h : %s' -1)</code>" \
-	"<b>Started on:</b> <code>$(hostname)</code>" \
-	"<b>Compiler:</b> <code>${KBUILD_COMPILER_STRING}</code>"
-
-push() {
-  curl -F document=@"$1" "https://api.telegram.org/bot$TOKEN/sendDocument" \
-		-F chat_id="$CHAT_ID" \
-		-F "disable_web_page_preview=true" \
-		-F "parse_mode=html" \
-		-F caption="Build took $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) second(s). | #Derp | <b>vayu</b>"
-}
 
 if [[ ! -f ${IMG} ]]; then
   echo "Failed build!"
