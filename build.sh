@@ -7,7 +7,7 @@
 # Credit to: Rama Bondan Prakoso (rama982)
 #
 
-export TZ=":Asia/Jakarta"
+export TZ=":Africa/Egypt"
 
 if [[ ! -f Makefile ]]; then
   echo "This not in rootdir kernel, please check directory again"
@@ -18,16 +18,14 @@ fi
 KDIR=$(pwd)
 TC="${KDIR}/.tools"
 AK=${TC}/AnyKernel
-KERNEL_NAME="Derp-KSU"
+KERNEL_NAME="Perf-KSU"
 KERNEL_TYPE="EAS"
 PHONE="Poco X3 Pro"
 DEVICE="vayu"
 CONFIG=${CONFIG:-vayu_defconfig}
 #CODENAME="-Testing"
-CHAT_ID="${CHAT_ID}"
-TOKEN="${TOKEN}"
-export KBUILD_BUILD_USER=Bagaskara
-export KBUILD_BUILD_HOST=DominatingMachine
+export KBUILD_BUILD_USER=momenabdulrazek
+export KBUILD_BUILD_HOST=AndroidBuildServer
 AK_BRANCH="vayu"
 
 if [[ ! -d $TC/clang || ! -d $TC/gcc64 || ! -d $TC/gcc32 ]]; then
@@ -39,13 +37,6 @@ fi
 if [[ ! -d ${AK} ]]; then
   git clone https://github.com/bagaskara815/AnyKernel3 --no-tags --single-branch -b $AK_BRANCH ${AK}
 fi
-
-# KernelSU
-git config --global user.email "bagaskara815@gmail.com"
-git config --global user.name "bagaskara815"
-curl https://gist.githubusercontent.com/bagaskara815/5aeb07f0d9031189871ffa362591b20f/raw/ksu.patch >> ksu.patch
-git am ksu.patch
-curl -LSs "https://raw.githubusercontent.com/tiann/KernelSU/main/kernel/setup.sh" | bash -s v0.9.5
 
 # Setup name
 GIT="$(git log --pretty=format:'%h' -1)"
@@ -97,33 +88,6 @@ m > >(tee $KDIR/out/${LOG}) 2> >(tee $KDIRout/${LOGE} >&2)
 END=$(date +"%s")
 DIFF=$(($END - $START))
 
-sendInfo() {
-    curl -s -X POST https://api.telegram.org/bot$TOKEN/sendMessage -d chat_id=$CHAT_ID -d "parse_mode=HTML" -d text="$(
-            for POST in "${@}"; do
-                echo "${POST}"
-            done
-        )"
-&>/dev/null
-}
-
-sendInfo "<b>----- Nightly Kernel For Derp -----</b>" \
-	"<b>Device:</b> ${DEVICE} or ${PHONE}" \
-	"<b>Name:</b> <code>${KERNEL_NAME}${KVERSION}</code>" \
-	"<b>Kernel Version:</b> <code>$(make kernelversion)</code>" \
-	"<b>Type:</b> <code>${KERNEL_TYPE}</code>" \
-	"<b>Branch:</b> <code>$(git branch --show-current)</code>" \
-	"<b>Commit:</b> <code>$(git log --pretty=format:'%h : %s' -1)</code>" \
-	"<b>Started on:</b> <code>$(hostname)</code>" \
-	"<b>Compiler:</b> <code>${KBUILD_COMPILER_STRING}</code>"
-
-push() {
-  curl -F document=@"$1" "https://api.telegram.org/bot$TOKEN/sendDocument" \
-		-F chat_id="$CHAT_ID" \
-		-F "disable_web_page_preview=true" \
-		-F "parse_mode=html" \
-		-F caption="Build took $(($DIFF / 60)) minute(s) and $(($DIFF % 60)) second(s). | #Derp | <b>vayu</b>"
-}
-
 if [[ ! -f ${IMG} ]]; then
   echo "Failed build!"
   push out/${LOG}
@@ -136,10 +100,3 @@ cp ${IMG} ${AK}
 cp ${DTBO} ${AK}
 find ${DTB} -name "*.dtb" -exec cat {} + > ${AK}/dtb
 make -C ${AK} ZIP="${ZIP_NAME}" normal
-
-push ${AK}/${ZIP_NAME}
-push out/${LOG}
-push out/arch/arm64/boot/Image
-push out/arch/arm64/boot/dtbo.img
-find out/arch/arm64/boot/dts/qcom -name "*.dtb" -exec cat {} + > ${KDIR}/out/arch/arm64/boot/dtb.img
-push out/arch/arm64/boot/dtb.img
